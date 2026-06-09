@@ -2,6 +2,14 @@
 [org 0]
 global _start1
 _start1:
+    xor ax, ax
+    mov ah, 0x0e
+    mov al, 'Y'
+    int 0x10
+    mov al, 0x0d
+    int 0x10
+    mov al, 0x0a
+    int 0x10
     ;check a20 line
     call check_a20
     jmp stuck
