@@ -138,7 +138,7 @@ check_a20:
 using_cpuid:
     mov eax, 0
     cpuid
-    cmp ebx, 0x6568747541
+    cmp ebx, 0x68747541
     je .amdp
     cmp ebx, 0x756e6547
     je .intelp
