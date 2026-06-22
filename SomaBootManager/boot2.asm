@@ -14,6 +14,7 @@ _start1:
     call check_a20
     call cpuid
     call using_cpuid
+    call checking_presence_of_msrs
     jmp stuck
 cpuid:
     pushfd
@@ -178,6 +179,48 @@ using_cpuid:
     mov al, 'N'
     int 0x10
     mov al, 'T'
+    int 0x10
+    mov al, 0x0d
+    int 0x10
+    mov al, 0x0a
+    int 0x10
+    ret
+checking_presence_of_msrs:
+    mov eax, 1
+    cpuid
+    and edx, 32
+    jz .no_msr
+    jnz .yes_msr
+.no_msr:
+    xor ax,ax
+    mov ah, 0x0e
+    mov al, 'N'
+    int 0x10
+    mov al, 'M'
+    int 0x10
+    mov al, 'S'
+    int 0x10
+    mov al, 'R'
+    int 0x10
+    mov al, 0x0d
+    int 0x10
+    mov al, 0x0a
+    int 0x10
+    ret
+.yes_msr:
+    xor ax,ax
+    mov ah, 0x0e
+    mov al, 'Y'
+    int 0x10
+    mov al, 'M'
+    int 0x10
+    mov al, 'S'
+    int 0x10
+    mov al, 'R'
+    int 0x10
+    mov al, 0x0d
+    int 0x10
+    mov al, 0x0a
     int 0x10
     ret
 stuck:
