@@ -15,6 +15,11 @@ start:
     call check_a20
     mov si, msg_a20_enabled
     call print_string
+    mov si, msg_starting_gmmfb
+    call print_string
+    call get_memorymap_from_bios
+    mov si, msg_gmmfb_success
+    call print_string
     jmp stuck
 print_string:
     xor ax, ax
@@ -152,6 +157,40 @@ check_a20:
     pop di
     pop si
     ret
+get_memorymap_from_bios:
+    xor ax, ax
+    mov es, ax
+    mov di, 0x7e00
+    sub di, 24
+    xor ebx, ebx
+.gmmfs:
+    add di, 24
+    mov eax, 0xe820
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    jc no15hex
+    cmp ebx, 0
+    jnz .gmmfs
+    ret
+no15hex:
+    xor ax, ax
+    mov ah, 0x0e
+    mov al, 'N'
+    int 0x10
+    mov al, 'O'
+    int 0x10
+    mov al, '1'
+    int 0x10
+    mov al, '5'
+    int 0x10
+    mov al, 'h'
+    int 0x10
+    mov al, 'e'
+    int 0x10
+    mov al, 'x'
+    int 0x10
+    ret
 stuck:
     hlt
     jmp stuck
@@ -162,3 +201,5 @@ msg_msr_no db "MSR-registers availability check failed.", 13, 10, 0
 msg_cpuid_available db "CPUID and MSR-registers availability check completed successfully.", 13, 10, 0
 msg_starting_A20 db "Starting A20 line status check...", 13, 10, 0
 msg_a20_enabled db "A20 line status: enabled.", 13, 10, 0
+msg_starting_gmmfb db "Getting memory map from BIOS...", 13, 10, 0
+msg_gmmfb_success db "Memory map from BIOS successfully recevied.", 13, 10, 0
