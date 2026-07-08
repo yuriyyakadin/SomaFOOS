@@ -20,6 +20,11 @@ start:
     call get_memorymap_from_bios
     mov si, msg_gmmfb_success
     call print_string
+    mov si, msg_informing_bios_otpm
+    call print_string
+    call inform_bios_otpm
+    mov si, msg_locating_kernel
+    call print_string
     jmp stuck
 print_string:
     xor ax, ax
@@ -190,6 +195,35 @@ no15hex:
     int 0x10
     mov al, 'x'
     int 0x10
+    mov al, 'A'
+    int 0x10
+    mov al, 'X'
+    int 0x10
+    mov al, '='
+    int 0x10
+    mov al, '0'
+    int 0x10
+    mov al, 'x'
+    int 0x10
+    mov al, 'e'
+    int 0x10
+    mov al, '8'
+    int 0x10
+    mov al, '2'
+    int 0x10
+    mov al, '0'
+    int 0x10
+    mov al, 0x0d
+    int 0x10
+    mov al, 0x0a
+    int 0x10
+    ret
+inform_bios_otpm:
+    xor ax, ax
+    mov bl, 1
+    mov ax, 0xEC00
+    int 0x15
+    jc no15hex
     ret
 stuck:
     hlt
@@ -203,3 +237,37 @@ msg_starting_A20 db "Starting A20 line status check...", 13, 10, 0
 msg_a20_enabled db "A20 line status: enabled.", 13, 10, 0
 msg_starting_gmmfb db "Getting memory map from BIOS...", 13, 10, 0
 msg_gmmfb_success db "Memory map from BIOS successfully recevied.", 13, 10, 0
+msg_informing_bios_otpm db "Informing BIOS of target proccessor mode...", 13, 10, 0
+msg_locating_kernel db "Locating kernel in memory...", 13, 10, 0
+align 4
+gdtr:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+gdt_start:
+    dd 0x00000000
+    dd 0x00000000
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x9A
+    db 0xCF
+    db 0x00
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x92
+    db 0xCF
+    db 0x00
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0xFA
+    db 0xCF
+    db 0x00
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0xF2
+    db 0xCF
+    db 0x00
+gdt_end:
